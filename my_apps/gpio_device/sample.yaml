@@ -1,0 +1,8 @@
+sample:
+  description: GPIO button and LED controller
+  name: GPIO device
+tests:
+  sample.gpio_device:
+    platform_allow: nrf52840dk_nrf52840
+    integration_platforms:
+      - nrf52840dk_nrf52840

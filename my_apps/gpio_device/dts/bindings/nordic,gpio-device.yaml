@@ -1,0 +1,15 @@
+compatible: "nordic,gpio-device"
+description: GPIO device
+properties:
+  button-gpios:
+    type: phandle-array
+    description: button gpio pins
+    required: true
+  led-gpios: 
+    type: phandle-array
+    description: LED gpio pins
+    required: true
+  label:
+    type: string
+    required: human-readable name
+    required: false

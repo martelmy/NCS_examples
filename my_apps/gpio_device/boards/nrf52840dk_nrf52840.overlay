@@ -1,0 +1,91 @@
+/ {
+    device1: device_1 {
+        status = "okay";
+        compatible = "nordic,gpio-device";
+        label = "DEVICE1";
+        button-gpios = <&gpio1 1 GPIO_ACTIVE_LOW>,
+                       <&gpio1 9 GPIO_ACTIVE_LOW>,
+                       <&gpio1 6 GPIO_ACTIVE_LOW>,
+                       <&gpio1 7 GPIO_ACTIVE_LOW>;
+        led-gpios = <&gpio1 3 GPIO_ACTIVE_LOW>, 
+                    <&gpio1 2 GPIO_ACTIVE_LOW>, 
+                    <&gpio1 5 GPIO_ACTIVE_LOW>,
+                    <&gpio1 4 GPIO_ACTIVE_LOW>;
+    };
+    device2: device_2 {
+        status = "okay";
+        compatible = "nordic,gpio-device";
+        label = "DEVICE2";
+        button-gpios = <&gpio0 23 GPIO_ACTIVE_LOW>,
+                       <&gpio1 0 GPIO_ACTIVE_LOW>,
+                       <&gpio0 18 GPIO_ACTIVE_LOW>,
+                       <&gpio0 17 GPIO_ACTIVE_LOW>;
+        led-gpios = <&gpio0 21 GPIO_ACTIVE_LOW>,
+                    <&gpio0 22 GPIO_ACTIVE_LOW>,
+                    <&gpio0 19 GPIO_ACTIVE_LOW>,
+                    <&gpio0 20 GPIO_ACTIVE_LOW>;
+    };
+    device3: device_3 {
+        status = "okay";
+        compatible = "nordic,gpio-device";
+        label = "DEVICE3";
+        button-gpios = <&gpio1 10 GPIO_ACTIVE_LOW>,
+                       <&gpio1 8 GPIO_ACTIVE_LOW>,
+                       <&gpio1 15 GPIO_ACTIVE_LOW>,
+                       <&gpio0 2 GPIO_ACTIVE_LOW>;
+        led-gpios = <&gpio1 12 GPIO_ACTIVE_LOW>,
+                    <&gpio1 11 GPIO_ACTIVE_LOW>,
+                    <&gpio1 14 GPIO_ACTIVE_LOW>,
+                    <&gpio1 13 GPIO_ACTIVE_LOW>;
+    };
+    device4: device_4 {
+        status = "okay";
+        compatible = "nordic,gpio-device";
+        label = "DEVICE4";
+        button-gpios = <&gpio0 30 GPIO_ACTIVE_LOW>,
+                       <&gpio0 31 GPIO_ACTIVE_LOW>,
+                       <&gpio0 26 GPIO_ACTIVE_LOW>,
+                       <&gpio0 27 GPIO_ACTIVE_LOW>;
+        led-gpios = <&gpio0 29 GPIO_ACTIVE_LOW>,
+                    <&gpio0 28 GPIO_ACTIVE_LOW>,
+                    <&gpio0 4 GPIO_ACTIVE_LOW>,
+                    <&gpio0 3 GPIO_ACTIVE_LOW>;
+    };
+
+};
+
+&qspi{
+    status = "disabled";
+};
+
+&spi0 {
+    status = "disabled";
+};
+
+&spi1 {
+    status = "disabled";
+};
+
+&spi2 {
+    status = "disabled";
+};
+
+&spi3 {
+    status = "disabled";
+};
+
+&adc{
+    status = "disabled";
+};
+
+&i2c0 {
+    status = "disabled";
+};    
+
+&i2c1 {
+    status = "disabled";
+};    
+
+&uart1 {
+    status = "disabled";
+};    
