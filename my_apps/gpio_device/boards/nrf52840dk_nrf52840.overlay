@@ -29,19 +29,6 @@
         status = "okay";
         compatible = "nordic,gpio-device";
         label = "DEVICE3";
-        button-gpios = <&gpio1 10 GPIO_ACTIVE_LOW>,
-                       <&gpio1 8 GPIO_ACTIVE_LOW>,
-                       <&gpio1 15 GPIO_ACTIVE_LOW>,
-                       <&gpio0 2 GPIO_ACTIVE_LOW>;
-        led-gpios = <&gpio1 12 GPIO_ACTIVE_LOW>,
-                    <&gpio1 11 GPIO_ACTIVE_LOW>,
-                    <&gpio1 14 GPIO_ACTIVE_LOW>,
-                    <&gpio1 13 GPIO_ACTIVE_LOW>;
-    };
-    device4: device_4 {
-        status = "okay";
-        compatible = "nordic,gpio-device";
-        label = "DEVICE4";
         button-gpios = <&gpio0 30 GPIO_ACTIVE_LOW>,
                        <&gpio0 31 GPIO_ACTIVE_LOW>,
                        <&gpio0 26 GPIO_ACTIVE_LOW>,
@@ -51,7 +38,19 @@
                     <&gpio0 4 GPIO_ACTIVE_LOW>,
                     <&gpio0 3 GPIO_ACTIVE_LOW>;
     };
-
+    device4: device_4 {
+        status = "okay";
+        compatible = "nordic,gpio-device";
+        label = "DEVICE4";
+        button-gpios = <&gpio1 10 GPIO_ACTIVE_LOW>,
+                       <&gpio1 8 GPIO_ACTIVE_LOW>,
+                       <&gpio1 15 GPIO_ACTIVE_LOW>,
+                       <&gpio0 2 GPIO_ACTIVE_LOW>;
+        led-gpios = <&gpio1 12 GPIO_ACTIVE_LOW>,
+                    <&gpio1 11 GPIO_ACTIVE_LOW>,
+                    <&gpio1 14 GPIO_ACTIVE_LOW>,
+                    <&gpio1 13 GPIO_ACTIVE_LOW>;
+    };
 };
 
 &qspi{
