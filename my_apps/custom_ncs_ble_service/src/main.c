@@ -21,6 +21,7 @@ static struct bt_conn *current_conn;
 void on_connected(struct bt_conn *conn, uint8_t err);
 void on_disconnected(struct bt_conn *conn, uint8_t err); 
 void on_notif_changed(enum bt_button_notifications_enabled status);
+void on_data_received(struct bt_conn *conn, const uint8_t *const data, uint16_t len);
 
 struct bt_conn_cb bluetooth_callbacks = {
 	.connected 	= on_connected,
@@ -29,6 +30,7 @@ struct bt_conn_cb bluetooth_callbacks = {
 
 struct bt_remote_service_cb remote_callbacks = {
 	.notif_changed = on_notif_changed,
+	.data_received = on_data_received,
 };
 
 void on_connected(struct bt_conn *conn, uint8_t err) 
@@ -60,6 +62,16 @@ void on_notif_changed(enum bt_button_notifications_enabled status)
     } else {
         LOG_INF("Notifications disabled");
     }
+}
+
+void on_data_received(struct bt_conn *conn, const uint8_t *const data, uint16_t len)
+{
+    uint8_t temp_str[len+1];
+    memcpy(temp_str, data, len);
+    temp_str[len] = 0x00;
+
+    LOG_INF("Received data on conn %p. Len: %d", (void *)conn, len);
+    LOG_INF("Data: %s", log_strdup(temp_str));
 }
 
 void button_handler(uint32_t button_state, uint32_t has_changed) 
