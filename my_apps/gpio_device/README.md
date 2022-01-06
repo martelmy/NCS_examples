@@ -5,7 +5,6 @@ It uses GPIOs to 'press' the button on another device, and to read the state of 
 <br>
 <br>
 ## Overview
-***
 
 When connected to other devices, you can make the GPIO device press specific buttons or read the state of a specific LED on one of the connected devices, by issuing the commands described in [Commands](#commands). 
 
@@ -13,7 +12,6 @@ The commands are implemented using Zephyr's Shell interface. After receiving a c
 <br>
 <br>
 ## Requirements
-***
 The sample supports the following development kits:
 
 ```
@@ -24,9 +22,8 @@ nrf52840dk_nrf52840
 - Other development kits to connect to and control
 - Cables to connect the pins
 <br>
-<br>
+
 ## Commands
-***
 
 **Press button**
 
@@ -59,9 +56,7 @@ lb view
 ```
 <br>
 
-
 ## Configuration
-***
 
 The table below shows which pins on the GPIO device should be connected to which buttons and LEDs on the connected devices. You must connect these pins on the GPIO device to the correct pins on the other device.
 
@@ -80,7 +75,6 @@ This configuration is set in [nrf52840dk_nrf52840.overlay](boards/nrf52840dk_nrf
 <br>
 <br>
 ## Building and running
-***
 
 Build the sample as described in [Building and programming an application](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/1.8.0/nrf/gs_programming.html)
 
