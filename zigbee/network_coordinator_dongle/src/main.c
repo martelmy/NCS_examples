@@ -10,6 +10,7 @@
 
 #include <zephyr.h>
 #include <device.h>
+#include <usb/usb_device.h>
 #include <logging/log.h>
 #include <dk_buttons_and_leds.h>
 
@@ -309,6 +310,9 @@ void main(void)
 	int blink_status = 0;
 
 	LOG_INF("Starting ZBOSS Coordinator example");
+
+	/* Enable USB */
+	usb_enable(NULL);
 
 	/* Initialize */
 	configure_gpio();
