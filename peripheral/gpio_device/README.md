@@ -39,7 +39,7 @@ Press button 3 on device 1.
 
 **Read LED state**
 
-<pre><code>lb get <i>device</i> <i>button</i></pre></code>
+<pre><code>lb get <i>device</i> <i>LED</i></pre></code>
 
 Example:
 
@@ -60,18 +60,18 @@ lb view
 
 The table below shows which pins on the GPIO device should be connected to which buttons and LEDs on the connected devices. You must connect these pins on the GPIO device to the correct pins on the other device.
 
-| LED/Button | Device 1 | Device 2 | Device 3 | Device 4 |
-| --------- | --------- | --------- | --------- | --------- |
-| Button 1  | P1.01  | P0.23  | P0.30  | P1.10  |
-| Button 2  | P1.09  | P1.00  | P0.31  | P1.08  |
-| Button 3  | P1.06  | P0.18  | P0.26  | P1.15  |
-| Button 4  | P1.07  | P0.17  | P0.27  | P0.02  |
-| LED 1  | P1.03  | P0.21  | P0.29  | P1.12  |
-| LED 2  | P1.02  | P0.22  | P0.28  | P1.11  |
-| LED 3  | P1.05  | P0.19  | P0.04  | P1.14  |
-| LED 4  | P1.04  | P0.20  | P0.03  | P1.13  |
+| LED/Button | Device 1 | Device 2 | Device 3 |
+| --------- | --------- | --------- | --------- |
+| Button 1  | P1.12  | P0.29  | P1.03  |
+| Button 2  | P1.13  | P1.14  | P1.04  |
+| Button 3  | P0.27  | P0.30  | P1.07  |
+| Button 4  | P1.08  | P0.03  | P0.11  |
+| LED 1  | P1.11  | P0.28  | P01.02  |
+| LED 2  | P0.02  | P1.15  | P01.05  |
+| LED 3  | P1.10  | P0.04  | P01.01  |
+| LED 4  | P0.31  | P0.31  | P01.06  |
 
-This configuration is set in [nrf52840dk_nrf52840.overlay](boards/nrf52840dk_nrf52840.overlay), and can be changed as desired.
+This configuration is set in [nrf52840dk_nrf52840.overlay](boards/nrf52840dk_nrf52840.overlay), and can be changed as desired. See [nRF52840 DK > Connector interface](https://infocenter.nordicsemi.com/topic/ug_nrf52840_dk/UG/dk/connector_if.html) for an overview of available GPIOs on nRF52840 DK.
 <br>
 <br>
 ## Building and running
