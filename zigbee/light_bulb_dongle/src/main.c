@@ -18,6 +18,10 @@
 #include <dk_buttons_and_leds.h>
 #include <settings/settings.h>
 
+#include <sys/printk.h>
+#include <usb/usb_device.h>
+#include <drivers/uart.h>
+
 #include <zboss_api.h>
 #include <zboss_api_addons.h>
 #include <zb_mem_config_med.h>
@@ -25,6 +29,11 @@
 #include <zigbee/zigbee_error_handler.h>
 #include <zigbee/zigbee_zcl_scenes.h>
 #include <zb_nrf_platform.h>
+
+#ifdef CONFIG_USB_DEVICE_STACK
+BUILD_ASSERT(DT_NODE_HAS_COMPAT(DT_CHOSEN(zephyr_console), zephyr_cdc_acm_uart),
+	     "Console device is not ACM CDC UART device");
+#endif /* CONFIG_USB_DEVICE_STACK */
 
 #define RUN_STATUS_LED                  DK_LED1
 #define RUN_LED_BLINK_INTERVAL          1000
@@ -537,6 +546,25 @@ void main(void)
 {
 	int blink_status = 0;
 	int err;
+
+	#ifdef CONFIG_USB_DEVICE_STACK
+	const struct device *dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
+	uint32_t dtr = 0;
+
+	if (usb_enable(NULL)) {
+		return;
+	}
+
+	/* Poll if the DTR flag was set */
+	while (!dtr) {
+		uart_line_ctrl_get(dev, UART_LINE_CTRL_DTR, &dtr);
+		/* Give CPU resources to low priority threads. */
+		k_sleep(K_MSEC(100));
+	}
+
+	int console_init(void);
+	#endif /* CONFIG_USB_DEVICE_STACK */
+
 
 	LOG_INF("Starting ZBOSS Light Bulb example");
 
