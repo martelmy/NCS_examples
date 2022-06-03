@@ -1,19 +1,18 @@
 #include <zephyr.h>
-
 #include <device.h>
 #include <devicetree.h>
 #include <drivers/gpio.h>
 #include <logging/log.h>
 #include <shell/shell.h>
+#include <stdlib.h>
 
 LOG_MODULE_REGISTER(app);
 
 #define BOARD_1 1
 #define BOARD_2 2
 #define BOARD_3 3
-#define BOARD_4 4
 
-#define NUMBER_OF_DEVICES 4
+#define NUMBER_OF_DEVICES 3
 
 #define ON 1
 #define OFF 0 
@@ -34,7 +33,6 @@ int led_gpios_init(const struct device *dev)
 	const struct device_config *config = dev->config;
 	
 	int err = 0;
-	LOG_INF("Device: %s, number of LEDs: %d", dev->name, config->num_leds);
 	if (!config->num_leds) {
 		LOG_ERR("%s: no LEDs found (DT child nodes missing)", dev->name);
 		err = -ENODEV;
@@ -65,7 +63,6 @@ int button_gpios_init(const struct device *dev)
 	const struct device_config *config = dev->config;
 	
 	int err = 0;
-	LOG_INF("Device: %s, number of Buttons: %d", dev->name, config->num_buttons);
 	if (!config->num_buttons) {
 		LOG_ERR("%s: no LEDs found (DT child nodes missing)", dev->name);
 		err = -ENODEV;
@@ -91,14 +88,20 @@ int button_gpios_init(const struct device *dev)
 }
 
 
-static void dev_init_function(const struct device *dev)
+static int dev_init_function(const struct device *dev)
 {
-	int err;
-	err = led_gpios_init(dev);
-	if (err) {
+	int ret = 0;
+	ret = led_gpios_init(dev);
+	if (ret) {
 		LOG_ERR("Could not init LED GPIOS");
+		return -ENODEV;
 	}
-	err = button_gpios_init(dev);
+	ret = button_gpios_init(dev);
+	if (ret) {
+		LOG_ERR("Could not init button GPIOS");
+		return -ENODEV;
+	}
+	return 0;
 }
 
 
@@ -147,10 +150,6 @@ CREATE_MY_DEVICE(2)
 CREATE_MY_DEVICE(3)
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(device4), okay)
-CREATE_MY_DEVICE(4)
-#endif
-
 void button_set(uint8_t device, uint8_t button_number)
 {
 	switch(device){
@@ -169,11 +168,6 @@ void button_set(uint8_t device, uint8_t button_number)
 			k_sleep(K_MSEC(5));
 			gpio_pin_set_dt(&(device_config_3.button_spec[button_number-1]),OFF);
 		break;
-		case BOARD_4:
-			gpio_pin_set_dt(&(device_config_4.button_spec[button_number-1]),ON);
-			k_sleep(K_MSEC(5));
-			gpio_pin_set_dt(&(device_config_4.button_spec[button_number-1]),OFF);
-		break;
 	}
 }
 
@@ -189,9 +183,6 @@ int led_get(uint8_t device, uint8_t led_number)
 		break;
 		case BOARD_3:
 			val = gpio_pin_get_dt(&(device_config_3.led_spec[led_number-1]));
-		break;
-		case BOARD_4:
-			val = gpio_pin_get_dt(&(device_config_4.led_spec[led_number-1]));
 		break;
 	}
 	return val;
