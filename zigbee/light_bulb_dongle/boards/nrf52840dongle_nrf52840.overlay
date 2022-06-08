@@ -12,7 +12,7 @@
 
 	pwmleds {
 		pwm_led3: pwm_led_3 {
-			pwms = <&pwm0 12>;
+			pwms = <&pwm0 6>;
 		};
 	};
 
@@ -26,6 +26,7 @@
 
 	aliases {
 		rst0 = &rst_button0;
+		pwm-led3 = &pwm_led3;
 	};
 };
 
@@ -34,4 +35,12 @@
 		compatible = "zephyr,cdc-acm-uart";
 		label = "CDC_ACM_0";
 	};
+};
+
+&pwm0 {
+	ch3-pin = <6>;
+	ch3-inverted;
+	/delete-property/ ch0-pin;
+	/delete-property/ ch1-pin;
+	/delete-property/ ch2-pin;
 };
