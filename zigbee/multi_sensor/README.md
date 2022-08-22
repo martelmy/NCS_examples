@@ -1,3 +1,5 @@
+<i>Latest nRF Connect version tested with: v2.0.2</i>
+
 # Zigbee Multi Sensor
 
 The Zigbee Multi Sensor demonstrates how the Temperature and Pressure sensor, similar to the [Zigbee Multi Sensor Example in nRF5 SDK for Thread & Zigbee](https://infocenter.nordicsemi.com/topic/sdk_tz_v4.1.0/zigbee_multi_sensor_example.html).

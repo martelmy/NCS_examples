@@ -4,11 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-/ {
-	chosen {
-		zephyr,entropy = &rng;
-	};
-
+ / {
 	sensor_sim: sensor_sim {
 		compatible = "nordic,sensor-sim";
 		label = "SENSOR_SIM";

@@ -8,4 +8,10 @@
 	chosen {
 		zephyr,entropy = &rng;
 	};
+
+	sensor_sim: sensor_sim {
+		compatible = "nordic,sensor-sim";
+		label = "SENSOR_SIM";
+		acc-signal = "wave";
+	};
 };
