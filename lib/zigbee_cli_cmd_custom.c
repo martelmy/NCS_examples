@@ -17,7 +17,7 @@
  * 
  * @pre Only after @ref start "bdb start".
  * 
- * Will stop cinnussioning by broadcasting a Mgmt_Permit_Joining_req with PermitDuration of 0.
+ * Will stop commissioning by broadcasting a Mgmt_Permit_Joining_req with PermitDuration of 0.
  * See Base Device Behaviour specification for details.
  */
 
