@@ -20,12 +20,12 @@
 
 LOG_MODULE_REGISTER(wifi_prov, CONFIG_WIFI_PROVISIONING_LOG_LEVEL);
 
-//uint8_t dialog_token = 1;
+#ifdef CONFIG_NRF_WIFI_LOW_POWER
 uint8_t flow_id = 1;
+#endif /* CONFIG_WIFI_TWT_ENABLED */	
 
 int wifi_set_power_state(bool enable)
 {
-	//int rc;
 	#ifdef CONFIG_NRF_WIFI_LOW_POWER
 	struct net_if *iface = net_if_get_default();
 	struct wifi_ps_params params = { 0 };
@@ -51,7 +51,8 @@ int wifi_set_twt(bool enable)
 	struct wifi_twt_params params = { 0 };
 
 	params.negotiation_type = WIFI_TWT_INDIVIDUAL;
-	params.setup_cmd = WIFI_TWT_SETUP_CMD_REQUEST;
+	//params.setup_cmd = WIFI_TWT_SETUP_CMD_REQUEST;
+	params.setup_cmd = WIFI_TWT_SETUP_CMD_DEMAND;
 	params.flow_id = flow_id;
 
 	if (enable){

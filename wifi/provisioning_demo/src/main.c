@@ -22,13 +22,18 @@ static bool ping_cmd_recv;
 static void button_handler(uint32_t button_state, uint32_t has_changed)
 {
 	uint32_t button = button_state & has_changed;
-	static uint8_t nrf_wifi_twt_state = 0;
+	static uint8_t nrf_wifi_power_state = 0;
 	if (button & DK_BTN1_MSK) {
 	#ifdef CONFIG_NRF_WIFI_LOW_POWER
-		nrf_wifi_twt_state = nrf_wifi_twt_state ? 0 : 1;
-		wifi_set_twt(nrf_wifi_twt_state);
-		printk("TWT %s\n", nrf_wifi_twt_state ? "setup" : "teardown");
-		dk_set_led(DK_LED1, nrf_wifi_twt_state);
+		nrf_wifi_power_state = nrf_wifi_power_state ? 0 : 1;
+		#ifdef CONFIG_WIFI_TWT_ENABLED
+			wifi_set_twt(nrf_wifi_power_state);
+			printk("TWT %s\n", nrf_wifi_power_state ? "setup" : "teardown");
+		#else
+			wifi_set_power_state(nrf_wifi_power_state);
+			printk("Power saving mode %s\n", nrf_wifi_power_state ? "on" : "off");
+		#endif /* CONFIG_WIFI_TWT_ENABLED */	
+		dk_set_led(DK_LED1, nrf_wifi_power_state);
 	#endif /* CONFIG_NRF_WIFI_LOW_POWER */			
 	}
 	if (button & DK_BTN2_MSK) {

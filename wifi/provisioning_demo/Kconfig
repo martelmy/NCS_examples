@@ -9,6 +9,10 @@ module = WIFI_PROVISIONING
 module-str = wifi provisioning service
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
 
+config WIFI_TWT_ENABLED
+    bool "Enable support for TWT (Target Wake Time)"
+    default n
+
 endmenu
 
 source "Kconfig.zephyr"
