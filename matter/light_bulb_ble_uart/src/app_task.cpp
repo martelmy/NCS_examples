@@ -192,7 +192,6 @@ CHIP_ERROR AppTask::Init()
 
 #ifdef CONFIG_BT_NUS
 	/* Initialize BLE NUS */
-	LOG_INF("Trying to start NUS advertising");
 	GetNUS().Init(RequestNUSAdvertisingStart);
 #endif
 	/* Initialize lighting device (PWM) */
@@ -433,7 +432,6 @@ void AppTask::RequestSMPAdvertisingStart(void)
 void AppTask::RequestNUSAdvertisingStart(void)
 {
 	AppEvent event;
-	LOG_INF("Inside RequestNUSAdvertisingStart");
 	event.Type = AppEventType::StartNUSAdvertising;
 	event.Handler = [](const AppEvent &) { GetNUS().StartBLEAdvertising(); };
 	PostEvent(event);
@@ -478,46 +476,6 @@ if (event.ButtonEvent.Action == static_cast<uint8_t>(AppEventType::ButtonPushed)
 		}
 	}
 }
-
-
-// void AppTask::FunctionHandler(const AppEvent &event)
-// {
-// 	if (event.ButtonEvent.PinNo != FUNCTION_BUTTON)
-// 		return;
-
-// 	/* To trigger software update: press the FUNCTION_BUTTON button briefly (< kFactoryResetTriggerTimeout)
-// 	 * To initiate factory reset: press the FUNCTION_BUTTON for kFactoryResetTriggerTimeout +
-// 	 * kFactoryResetCancelWindowTimeout All LEDs start blinking after kFactoryResetTriggerTimeout to signal factory
-// 	 * reset has been initiated. To cancel factory reset: release the FUNCTION_BUTTON once all LEDs start blinking
-// 	 * within the kFactoryResetCancelWindowTimeout.
-// 	 */
-// 	if (event.ButtonEvent.Action == static_cast<uint8_t>(AppEventType::ButtonPushed)) {
-// 		if (!Instance().mFunctionTimerActive && Instance().mFunction == FunctionEvent::NoneSelected) {
-// 			Instance().StartTimer(kFactoryResetTriggerTimeout);
-// 			Instance().mFunction = FunctionEvent::SoftwareUpdate;
-// 		}
-// 	} else {
-// 		/* If the button was released before factory reset got initiated, trigger a software update. */
-// 		if (Instance().mFunctionTimerActive && Instance().mFunction == FunctionEvent::SoftwareUpdate) {
-// 			Instance().CancelTimer();
-// 			Instance().mFunction = FunctionEvent::NoneSelected;
-
-// #ifdef CONFIG_BT_NUS
-// 			GetNUS().StartServer();
-// #else
-// 			LOG_INF("Software update is disabled");
-// #endif
-// 		} else if (Instance().mFunctionTimerActive && Instance().mFunction == FunctionEvent::FactoryReset) {
-// #if NUMBER_OF_LEDS == 4
-// 			sFactoryResetLEDs.Set(false);
-// #endif
-// 			UpdateStatusLED();
-// 			Instance().CancelTimer();
-// 			Instance().mFunction = FunctionEvent::NoneSelected;
-// 			LOG_INF("Factory Reset has been Canceled");
-// 		}
-// 	}
-// }
 
 void AppTask::StartBLENUSHandler(const AppEvent &event)
 {
