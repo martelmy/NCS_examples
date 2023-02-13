@@ -20,54 +20,58 @@
 
 LOG_MODULE_REGISTER(wifi_prov, CONFIG_WIFI_PROVISIONING_LOG_LEVEL);
 
-#ifdef CONFIG_NRF_WIFI_LOW_POWER
-uint8_t flow_id = 1;
-#endif /* CONFIG_WIFI_TWT_ENABLED */	
+static uint8_t  nrf_wifi_ps_enabled = 0;
 
-int wifi_set_power_state(bool enable)
+int wifi_set_power_state()
 {
 	#ifdef CONFIG_NRF_WIFI_LOW_POWER
 	struct net_if *iface = net_if_get_default();
 	struct wifi_ps_params params = { 0 };
-	if (enable) {
-		params.enabled = WIFI_PS_ENABLED;
+	if (nrf_wifi_ps_enabled) {
+		params.enabled = WIFI_PS_DISABLED;
 	}
 	else {
-		params.enabled = WIFI_PS_DISABLED;
+		params.enabled = WIFI_PS_ENABLED;
 	}
 
 	if (net_mgmt(NET_REQUEST_WIFI_PS, iface, &params, sizeof(params))) {
 		LOG_ERR("Power save %s failed", params.enabled ? "enable" : "disable");
+		return -1;
 	}
 	LOG_INF("Set power save: %s", params.enabled ? "enable" : "disable");
+	nrf_wifi_ps_enabled = nrf_wifi_ps_enabled ? 0 : 1;
 	#endif /* CONFIG_NRF_WIFI_LOW_POWER */
-	return 1;
+	return 0;
 }
 
-int wifi_set_twt(bool enable)
+#ifdef CONFIG_WIFI_TWT_ENABLED
+uint8_t flow_id = 1;
+
+
+int wifi_set_twt()
 {
-	#ifdef CONFIG_NRF_WIFI_LOW_POWER
+	printk("TWT %s\n", nrf_wifi_ps_enabled ? "teardown" : "setup");
 	struct net_if *iface = net_if_get_default();
 	struct wifi_twt_params params = { 0 };
 
 	params.negotiation_type = WIFI_TWT_INDIVIDUAL;
-	//params.setup_cmd = WIFI_TWT_SETUP_CMD_REQUEST;
-	params.setup_cmd = WIFI_TWT_SETUP_CMD_DEMAND;
+	params.setup_cmd = WIFI_TWT_SETUP_CMD_REQUEST;
 	params.flow_id = flow_id;
 
-	if (enable){
-		params.operation = WIFI_TWT_SETUP;
-		params.setup.twt_interval_ms = 60000;
-		params.setup.responder = 0;
-		params.setup.trigger = 0;
-		params.setup.implicit = 0;
-		params.setup.announce = 0;
-		params.setup.twt_wake_interval_ms = 20;
-	}
-	else {
+	if (nrf_wifi_ps_enabled){
 		params.operation = WIFI_TWT_TEARDOWN;
 		params.teardown.teardown_all = 1;
 		flow_id = flow_id<WIFI_MAX_TWT_FLOWS ? flow_id+1 : 1;
+		nrf_wifi_ps_enabled = 0;
+	}
+	else {
+		params.operation = WIFI_TWT_SETUP;
+		params.setup.twt_interval_ms = 15000;
+		params.setup.responder = 0;
+		params.setup.trigger = 1;
+		params.setup.implicit = 1;
+		params.setup.announce = 1;
+		params.setup.twt_wake_interval_ms = 65;
 	}
 	
 	if (net_mgmt(NET_REQUEST_WIFI_TWT, iface, &params, sizeof(params))) {
@@ -78,9 +82,10 @@ int wifi_set_twt(bool enable)
 	LOG_INF("TWT operation %s with flow_id: %d requested", 
 			wifi_twt_operation_txt(params.operation),
 			params.flow_id);
-	#endif /* CONFIG_NRF_WIFI_LOW_POWER */
-	return 1;
+	return 0;
 }
+
+#endif /* CONFIG_WIFI_TWT_ENABLED */
 
 #define WIFI_PROV_MGMT_EVENTS (NET_EVENT_WIFI_SCAN_RESULT | \
 				NET_EVENT_WIFI_CONNECT_RESULT             | \
@@ -252,7 +257,6 @@ static void prov_set_config_handler(Request *req, Response *rsp)
 		return;
 	}
 
-
 	/* Step 1: convert protobuf data type to local data type */
 
 	/* SSID */
@@ -265,7 +269,7 @@ static void prov_set_config_handler(Request *req, Response *rsp)
 		memcpy(config.bssid, req->config.wifi.bssid.bytes, req->config.wifi.bssid.size);
 	}
 	/* Channel */
-	config.channel = req->config.wifi.channel;
+	config.channel = WIFI_CHANNEL_ANY;
 	/* Password and security */
 	if (req->config.has_passphrase == true) {
 		memcpy(config.password, req->config.passphrase.bytes, req->config.passphrase.size);
@@ -599,6 +603,7 @@ static void handle_wifi_twt_event(struct net_mgmt_event_callback *cb)
 		      resp->setup.twt_wake_interval_ms,
 		      resp->setup.twt_interval_ms);
 	}
+	nrf_wifi_ps_enabled = 1;
 }
 
 static void wifi_mgmt_event_handler(struct net_mgmt_event_callback *cb,
@@ -610,7 +615,7 @@ static void wifi_mgmt_event_handler(struct net_mgmt_event_callback *cb,
 		break;
 	case NET_EVENT_WIFI_CONNECT_RESULT:
 		handle_wifi_connect_result(cb);
-		wifi_set_power_state(false);
+		nrf_wifi_ps_enabled = 0;
 		break;
 	case NET_EVENT_WIFI_TWT:
 		handle_wifi_twt_event(cb);

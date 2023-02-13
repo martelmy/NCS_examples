@@ -109,9 +109,9 @@ int wifi_prov_init(void);
  * 
  * @return 0 if successful
 */
-int wifi_set_power_state(bool enable);
+int wifi_set_power_state();
 
-int wifi_set_twt(bool enable);
+int wifi_set_twt();
 
 #ifdef __cplusplus
 }

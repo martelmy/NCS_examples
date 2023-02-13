@@ -1,6 +1,10 @@
 # Wi-Fi Provisioning Demo
 
-<i> Based on [Wi-Fi: Provisioning Service](https://github.com/nrfconnect/sdk-nrf/tree/v2.2.0/samples/wifi/provisioning) in nRF Connect SDK v2.2.0 and [Rallare's Wi-Fi Provisioning demo](https://github.com/Rallare/fw-nrfconnect-nrf/tree/provisioning_demo_app/samples/wifi/provisioning).</i>
+<i> Based on [Wi-Fi: Provisioning Service](https://github.com/nrfconnect/sdk-nrf/tree/v2.2.0/samples/wifi/provisioning) in nRF Connect SDK and [Rallare's Wi-Fi Provisioning demo](https://github.com/Rallare/fw-nrfconnect-nrf/tree/provisioning_demo_app/samples/wifi/provisioning).<br>
+SDK version: v2.2.99-dev3<br>
+Cherry-picked commit:
+https://github.com/nrfconnect/sdk-zephyr/commit/c4b528788ce7927f0f8a7da487a8f5c8bbe5643e
+</i>
 
 # Table of Contents
 1. [Requirements](#requirements)
