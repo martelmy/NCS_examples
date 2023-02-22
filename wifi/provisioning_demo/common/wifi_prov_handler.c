@@ -18,9 +18,10 @@
 #include "wifi_provisioning.h"
 #include "wifi_prov_internal.h"
 
+
 LOG_MODULE_REGISTER(wifi_prov, CONFIG_WIFI_PROVISIONING_LOG_LEVEL);
 
-static uint8_t  nrf_wifi_ps_enabled = 0;
+bool nrf_wifi_ps_enabled = 0;
 
 int wifi_set_power_state()
 {

@@ -13,6 +13,8 @@
 #include "common/proto/result.pb.h"
 #include "common/proto/version.pb.h"
 
+extern bool nrf_wifi_ps_enabled;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

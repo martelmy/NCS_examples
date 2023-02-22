@@ -219,8 +219,12 @@ static void update_wifi_status_in_adv(void)
 		prov_svc_data[ADV_DATA_FLAG_IDX] |= ADV_DATA_FLAG_PROV_STATUS_BIT;
 	}
 
-	rc = net_mgmt(NET_REQUEST_WIFI_IFACE_STATUS, iface, &status,
-				sizeof(struct wifi_iface_status));
+	if (!nrf_wifi_ps_enabled) {
+		rc = net_mgmt(NET_REQUEST_WIFI_IFACE_STATUS, iface, &status,
+					sizeof(struct wifi_iface_status));
+	} else {
+		return;
+	}
 	/* If WiFi is not connected or error occurs, mark it as not connected. */
 	if ((rc != 0) || (status.state < WIFI_STATE_ASSOCIATED)) {
 		prov_svc_data[ADV_DATA_FLAG_IDX] &= ~ADV_DATA_FLAG_CONN_STATUS_BIT;
