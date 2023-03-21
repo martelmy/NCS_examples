@@ -1,0 +1,13 @@
+include: base.yaml
+
+compatible: "my-company,custom-device"
+description: Custom devicetree device
+properties:
+  in-gpios:
+    type: phandle-array
+    description: input gpio pins
+    required: true
+  out-gpios:
+    type: phandle-array
+    description: output gpio pins
+    required: true

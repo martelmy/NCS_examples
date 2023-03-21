@@ -1,0 +1,8 @@
+/ {
+    my_custom_device: my_custom_device {
+        compatible = "my-company,custom-device";
+        status = "okay";
+        in-gpios = <&gpio0 3 GPIO_ACTIVE_HIGH>;
+        out-gpios = <&gpio0 4 GPIO_ACTIVE_LOW>;
+    };
+};
