@@ -1,0 +1,10 @@
+sample:
+  description: Test Wi-Fi network sockets using a client/server
+    sample
+  name: Wi-Fi Socket Echo Client
+tests:
+  sample.wifi.wifi_socket_echo_client:
+    build_only: true
+    integration_platforms:
+      - nrf7002dk_nrf5340_cpuapp
+    platform_allow: nrf7002dk_nrf5340_cpuapp
