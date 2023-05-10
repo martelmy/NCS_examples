@@ -29,8 +29,18 @@ CONFIG_NET_SOCKETS_SOCKOPT_TLS=y
 CONFIG_POSIX_MAX_FDS=9
 ```
 
-## Socket Echo server
-Download the Zephyr Networking Tools
+## Socket server
+There are several ways to run the socket server. Here I show two options; netcat and Zephyr's Socket Echo Server.
+
+### Netcat
+Run netcat command to start the server.
+```
+nc -k -l -p 4242
+```
+
+### 
+
+Download the Zephyr Networking Tools.
 ```
 $ git clone https://github.com/zephyrproject-rtos/net-tools
 $ cd net-tools
@@ -39,8 +49,9 @@ $ make
 
 Run the echo-server. Make sure to replace ```enp0s25``` with your network interface.
 ```
-$ echo-server -i enp0s25
+$ ./echo-server -i enp0s25
 ```
+
 
 ## Building and running
 

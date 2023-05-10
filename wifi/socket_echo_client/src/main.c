@@ -79,7 +79,7 @@ static void ipv4_mgmt_event_handler(struct net_mgmt_event_callback *cb,
 
 static void init_app()
 {    
-	#if defined(CONFIG_NET_SOCKETS_SOCKOPT_TLS)
+#if defined(CONFIG_NET_SOCKETS_SOCKOPT_TLS)
 	int err;
     // Add CA certificate
     err = tls_credential_add(CA_CERTIFICATE_TAG, TLS_CREDENTIAL_CA_CERTIFICATE,
@@ -87,7 +87,24 @@ static void init_app()
     if (err < 0) {
 		LOG_ERR("Failed to register public certificate: %d", err);
 	}
-	#endif
+#if defined(CONFIG_MBEDTLS_KEY_EXCHANGE_PSK_ENABLED)
+	err = tls_credential_add(PSK_TAG,
+				TLS_CREDENTIAL_PSK,
+				psk,
+				sizeof(psk));
+	if (err < 0) {
+		LOG_ERR("Failed to register PSK: %d", err);
+	}
+	err = tls_credential_add(PSK_TAG,
+				TLS_CREDENTIAL_PSK_ID,
+				psk_id,
+				sizeof(psk_id) - 1);
+	if (err < 0) {
+		LOG_ERR("Failed to register PSK ID: %d", err);
+	}
+#endif //CONFIG_MBEDTLS_KEY_EXCHANGE_PSK_ENABLED
+
+#endif //CONFIG_NET_SOCKETS_SOCKOPT_TLS
 
     if (IS_ENABLED(CONFIG_NET_CONNECTION_MANAGER)) {
 		LOG_INF("Registering wifi events");
@@ -123,6 +140,9 @@ static int socket_setup(int *sock, struct sockaddr *addr, socklen_t addrlen) {
     // Configure socket options
     sec_tag_t sec_tag_opt[] = {
         CA_CERTIFICATE_TAG,
+#if defined(CONFIG_MBEDTLS_KEY_EXCHANGE_PSK_ENABLED)
+		PSK_TAG,
+#endif //CONFIG_MBEDTLS_KEY_EXCHANGE_PSK_ENABLED
     };
     ret = setsockopt(*sock, SOL_TLS, TLS_SEC_TAG_LIST, sec_tag_opt, sizeof(sec_tag_opt));
     if (ret < 0) {
@@ -133,7 +153,7 @@ static int socket_setup(int *sock, struct sockaddr *addr, socklen_t addrlen) {
     if (ret < 0) {
         LOG_ERR("Failed to set TLS_HOSTNAME option, errno: %d", errno);
     }
-#endif
+#endif //CONFIG_NET_SOCKETS_SOCKOPT_TLS
 
     ret = connect(*sock, addr, addrlen);
     if (ret < 0) {
