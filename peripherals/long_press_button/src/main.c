@@ -9,7 +9,7 @@ struct k_timer long_press_timer;
 
 static void button_handler(uint32_t button_state, uint32_t has_changed)
 {
-	if (DK_BTN1_MSK & has_changed) {
+if (DK_BTN1_MSK & has_changed) {
 		if (DK_BTN1_MSK & button_state) {
 			/* Button changed its state to pressed */
 			k_timer_start(&long_press_timer, LONG_PRESS_TIMEOUT, K_NO_WAIT);
