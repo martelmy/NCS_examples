@@ -12,8 +12,6 @@
 #include <zephyr/net/net_if.h>
 #include <zephyr/net/wifi.h>
 #include <zephyr/net/wifi_mgmt.h>
-// #include <zephyr/net/net_mgmt.h>
-// #include <net/wifi_mgmt_ext.h>
 
 #include "wifi_twt.h"
 
@@ -22,7 +20,7 @@ LOG_MODULE_REGISTER(wifi_twt);
 #define TWT_MGMT_EVENTS (NET_EVENT_WIFI_TWT | NET_EVENT_WIFI_TWT_SLEEP_STATE)
 
 #define TWT_WAKE_INTERVAL_MS 65
-#define TWT_INTERVAL_MS	     7000
+#define TWT_INTERVAL_MS	     15000
 
 bool nrf_wifi_twt_enabled = 0;
 uint8_t twt_flow_id = 1;
