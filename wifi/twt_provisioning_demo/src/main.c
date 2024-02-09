@@ -22,16 +22,17 @@
 
 #include <bluetooth/services/wifi_provisioning.h>
 
-#include <dk_buttons_and_leds.h>
-#include "wifi_twt.h"
+#include <zephyr/logging/log.h>
 
-#ifdef CONFIG_NET_SHELL
+#include <dk_buttons_and_leds.h>
+
 #include <zephyr/shell/shell.h>
 #include <zephyr/shell/shell_uart.h>
 
-const struct shell *shell_backend;
-static bool ping_cmd_recv;
-#endif
+#include "wifi_twt.h"
+#include "ping.h"
+
+LOG_MODULE_REGISTER(app);
 
 #ifdef CONFIG_WIFI_PROV_ADV_DATA_UPDATE
 #define ADV_DATA_UPDATE_INTERVAL      CONFIG_WIFI_PROV_ADV_DATA_UPDATE_INTERVAL
@@ -254,6 +255,7 @@ static void update_dev_name(struct net_linkaddr *mac_addr)
 }
 
 
+
 static void button_handler(uint32_t button_state, uint32_t has_changed)
 {
 	uint32_t button = button_state & has_changed;
@@ -265,25 +267,18 @@ static void button_handler(uint32_t button_state, uint32_t has_changed)
 
 	/* Send ping */
 	if (button & DK_BTN2_MSK) {
-		/* Cannot call it directly from dk-buttons-and-leds
-		 *  workq item, looks like priority is equal to shell subsys
-		 */
 		dk_set_led(DK_LED2, 1);
-		ping_cmd_recv = true;
+		ping_schedule();
 	}
 }
-
 
 int main(void)
 {
 	int rc;
+	
 	struct net_if *iface = net_if_get_default();
 	struct net_linkaddr *mac_addr = net_if_get_link_addr(iface);
 	char device_name_str[sizeof(device_name) + 1];
-
-	#ifdef CONFIG_NET_SHELL
-	shell_backend = shell_backend_uart_get_ptr();
-	#endif
 
 	rc = dk_buttons_init(button_handler);
 	if (rc) {
@@ -293,7 +288,7 @@ int main(void)
 	rc = dk_leds_init();
 	if (rc) {
 		printk("Cannot init LEDs (err: %d)", rc);
-	}
+	}	
 
 	/* Sleep 1 seconds to allow initialization of wifi driver. */
 	k_sleep(K_SECONDS(1));
@@ -348,6 +343,7 @@ int main(void)
 				K_SECONDS(ADV_DATA_UPDATE_INTERVAL));
 #endif /* CONFIG_WIFI_PROV_ADV_DATA_UPDATE */
 
+	ping_init();
 	wifi_twt_init();
 
 	/* Apply stored wifi credential */
@@ -356,22 +352,6 @@ int main(void)
 	while (1)
 	{
 		k_sleep(K_MSEC(1000));
-		/* Scheduling the shell ping to main thread
-		 * ie, a lower prio than workq
-		 */
-		if (ping_cmd_recv)
-		{
-#ifdef CONFIG_NET_SHELL
-			char ping_cmd[64] = "net ping 8.8.8.8";
-			int ret = shell_execute_cmd(shell_backend, ping_cmd);
-			if (ret)
-			{
-				printk("shell error: %d\n", ret);
-			}
-			ping_cmd_recv = false;
-			dk_set_led(DK_LED2, 0);
-#endif
-		}
 	}
 
 	return 0;

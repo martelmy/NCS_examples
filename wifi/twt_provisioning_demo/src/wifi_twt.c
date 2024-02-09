@@ -13,6 +13,7 @@
 #include <zephyr/net/wifi.h>
 #include <zephyr/net/wifi_mgmt.h>
 
+#include <dk_buttons_and_leds.h>
 #include "wifi_twt.h"
 
 LOG_MODULE_REGISTER(wifi_twt);
@@ -20,7 +21,7 @@ LOG_MODULE_REGISTER(wifi_twt);
 #define TWT_MGMT_EVENTS (NET_EVENT_WIFI_TWT | NET_EVENT_WIFI_TWT_SLEEP_STATE)
 
 #define TWT_WAKE_INTERVAL_MS 65
-#define TWT_INTERVAL_MS	     15000
+#define TWT_INTERVAL_MS	     10000
 
 bool nrf_wifi_twt_enabled = 0;
 uint8_t twt_flow_id = 1;
@@ -34,6 +35,7 @@ static void handle_wifi_twt_event(struct net_mgmt_event_callback *cb)
 	if (resp->operation == WIFI_TWT_TEARDOWN) {
 		LOG_INF("TWT teardown received for flow ID %d\n", resp->flow_id);
 		nrf_wifi_twt_enabled = 0;
+		dk_set_led(DK_LED1, 0);
 		return;
 	}
 
@@ -49,6 +51,7 @@ static void handle_wifi_twt_event(struct net_mgmt_event_callback *cb)
 	/* Check if TWT setup was accepted and print parameters */
 	if (resp->setup_cmd == WIFI_TWT_SETUP_CMD_ACCEPT) {
 		nrf_wifi_twt_enabled = 1;
+		dk_set_led(DK_LED1, 1);
 
 		LOG_INF("== TWT negotiated parameters ==");
 		LOG_INF("TWT Dialog token: %d", resp->dialog_token);
@@ -107,6 +110,7 @@ int wifi_set_twt()
 		params.setup_cmd = WIFI_TWT_TEARDOWN;
 		twt_flow_id = twt_flow_id < WIFI_MAX_TWT_FLOWS ? twt_flow_id + 1 : 1;
 		nrf_wifi_twt_enabled = 0;
+		dk_set_led(DK_LED1, 0);
 	}
 
 	if (net_mgmt(NET_REQUEST_WIFI_TWT, iface, &params, sizeof(params))) {
@@ -118,6 +122,7 @@ int wifi_set_twt()
 	LOG_INF("-------------------------------");
 	LOG_INF("TWT operation %s requested", wifi_twt_operation_txt(params.operation));
 	LOG_INF("-------------------------------");
+	
 	return 0;
 }
 
