@@ -28,7 +28,6 @@ struct k_work_delayable ping_timeout_work;
 #define PING_WORK_DELAY K_MSEC(50)
 #define PING_TIMEOUT K_SECONDS(5)
 
-static struct k_sem wait_data;
 #define WAIT_TIME K_SECONDS(1)
 
 #define HOST_ADDR "8.8.8.8"
