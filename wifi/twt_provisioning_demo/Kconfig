@@ -17,6 +17,14 @@ if WIFI_PROV_ADV_DATA_UPDATE
 
 endif # WIFI_PROV_ADV_DATA_UPDATE
 
+config WIFI_TWT_INTERVAL_MS
+	int "Target Wake Time interval in ms"
+	default 10000
+
+config WIFI_TWT_WAKE_INTERVAL_MS
+	int "Target Wake Time wake interval in ms"
+	default 65
+
 endmenu
 
 source "Kconfig.zephyr"

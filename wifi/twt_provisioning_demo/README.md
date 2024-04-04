@@ -159,7 +159,7 @@ Sometimes programming and booting the device with PPK2 connected might fail. In 
 
 ## Target Wake Time (TWT)
 
-With TWT, you can specify when and how frequently the device should wake up to send or receive data. This allows the device to be in low-power mode for much longer, thus significantly decreasing the average current consumption. In this demo, the default TWT interval, i.e., the expected average time between successive TWT wakeups, is, by default, 10 seconds. The interval can be changed by changing the value of `TWT_INTERVAL_MS` in [wifi_twt.c](src/wifi_twt.c).
+With TWT, you can specify when and how frequently the device should wake up to send or receive data. This allows the device to be in low-power mode for much longer, thus significantly decreasing the average current consumption. In this demo, the default TWT interval, i.e., the expected average time between successive TWT wakeups, is, by default, 10 seconds. The interval can be changed by setting the value of `CONFIG_TWT_INTERVAL_MS` in [prj.conf](prj.conf).
 
 For more information, see our documentation on [Target Wake Time (TWT)](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.2/nrf/device_guides/working_with_nrf/nrf70/developing/powersave.html#target-wake-time-twt).
 

@@ -20,9 +20,6 @@ LOG_MODULE_REGISTER(wifi_twt);
 
 #define TWT_MGMT_EVENTS (NET_EVENT_WIFI_TWT | NET_EVENT_WIFI_TWT_SLEEP_STATE)
 
-#define TWT_WAKE_INTERVAL_MS 65
-#define TWT_INTERVAL_MS	     10000
-
 bool nrf_wifi_twt_enabled = 0;
 uint8_t twt_flow_id = 1;
 
@@ -103,8 +100,8 @@ int wifi_set_twt()
 		params.setup.trigger = 0;
 		params.setup.implicit = 1;
 		params.setup.announce = 0;
-		params.setup.twt_wake_interval = TWT_WAKE_INTERVAL_MS * USEC_PER_MSEC;
-		params.setup.twt_interval = TWT_INTERVAL_MS * USEC_PER_MSEC;
+		params.setup.twt_wake_interval = CONFIG_WIFI_TWT_WAKE_INTERVAL_MS * USEC_PER_MSEC;
+		params.setup.twt_interval = CONFIG_WIFI_TWT_INTERVAL_MS * USEC_PER_MSEC;
 	} else {
 		params.operation = WIFI_TWT_TEARDOWN;
 		params.setup_cmd = WIFI_TWT_TEARDOWN;

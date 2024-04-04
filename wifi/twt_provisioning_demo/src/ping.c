@@ -16,39 +16,36 @@
 #include <zephyr/shell/shell.h>
 #include <zephyr/shell/shell_uart.h>
 
+#include <zephyr/net/icmp.h>
 #include "icmpv4.h"
 #include "ping.h"
 
 LOG_MODULE_REGISTER(ping);
 
 const struct shell *shell_backend;
+static struct net_icmp_ctx ctx;
 
 struct k_work_delayable ping_work;
-struct k_work_delayable ping_timeout_work;
+struct k_work_delayable ping_response_timeout;
+
 #define PING_WORK_DELAY K_MSEC(50)
-#define PING_TIMEOUT K_SECONDS(5)
+#define PING_RESPONSE_TIMEOUT K_MSEC(1.5*CONFIG_WIFI_TWT_INTERVAL_MS)
 
 #define WAIT_TIME K_SECONDS(1)
 
-#define HOST_ADDR "8.8.8.8"
 static struct sockaddr_in addr4;
 static int sequence = 0;
+static int recv_seq = 0;
 
-static enum net_verdict handle_ping_reply(struct net_pkt *pkt,
-					       struct net_ipv4_hdr *ip_hdr,
-					       struct net_icmp_hdr *icmp_hdr);
-
-static struct net_icmpv4_handler ping_handler = {
-	.type = NET_ICMPV4_ECHO_REPLY,
-	.code = 0,
-	.handler = handle_ping_reply,
-};
-
-static enum net_verdict handle_ping_reply(struct net_pkt *pkt,
-					       struct net_ipv4_hdr *ip_hdr,
-					       struct net_icmp_hdr *icmp_hdr)
+static int handle_ping_reply(struct net_icmp_ctx *ctx,
+						   struct net_pkt *pkt,
+					       struct net_icmp_ip_hdr *hdr,
+					       struct net_icmp_hdr *icmp_hdr,
+						   void *user_data)
 {
-	k_work_cancel_delayable(&ping_timeout_work);
+	struct k_sem *sem_wait = user_data;
+	struct net_ipv4_hdr *ip_hdr = hdr->ipv4;
+	k_work_cancel_delayable(&ping_response_timeout);
 	dk_set_led(DK_LED2, 0);
 
 	NET_PKT_DATA_ACCESS_CONTIGUOUS_DEFINE(icmp_access,
@@ -87,54 +84,86 @@ static enum net_verdict handle_ping_reply(struct net_pkt *pkt,
 	inet_ntop(AF_INET, &ip_hdr->src, ipv4_src_addr, sizeof(ipv4_src_addr));
 	inet_ntop(AF_INET, &ip_hdr->dst, ipv4_dst_addr, sizeof(ipv4_dst_addr));
 	
-
-	LOG_INF("%d bytes from %s to %s: seq=%d ttl=%d "
-		 "%s\n",
+	recv_seq = ntohs(icmp_echo->sequence);
+	LOG_INF("%d bytes received from %s: seq=%d ttl=%d "
+		 "%s",
 		 ntohs(ip_hdr->len) - net_pkt_ipv6_ext_len(pkt) -
 		 NET_ICMPH_LEN,
 		 ipv4_src_addr,
-		 ipv4_dst_addr,
-		 ntohs(icmp_echo->sequence),
+		 recv_seq,
 		 ip_hdr->ttl,
 		 time_buf);
 
 	net_pkt_unref(pkt);
+	(void)net_icmp_cleanup_ctx(ctx);
+	k_sem_give(sem_wait);
 	return NET_OK;
 } 
 
-static void ping_timeout_work_handler()
+static void ping_response_timeout_handler()
 {
-    net_icmpv4_register_handler(&ping_handler);
+	LOG_ERR("Ping timed out, clearing ICMP");
+	(void)net_icmp_cleanup_ctx(&ctx);
+	sequence = recv_seq;
+	return;
 }
 
 static void ping_work_handler(struct k_work *item)
 {
-	int err;
+	if (recv_seq < sequence) {
+		LOG_ERR("Ping already schedueled");
+		return;
+	}
 
+	int err;
+	struct net_icmp_ping_params params;
+	struct net_if *iface = net_if_get_default();
+
+	sequence++;
+
+	err = net_icmp_init_ctx(&ctx, NET_ICMPV4_ECHO_REPLY, 0, handle_ping_reply);
+	if (err) {
+		LOG_ERR("Cannot init ICMP, err: %d, %s", err, strerror(err));
+		goto fail;
+	}
+	
 	addr4.sin_family = AF_INET;
-	err = net_addr_pton(AF_INET, HOST_ADDR, &addr4.sin_addr);
+	memcpy(&addr4.sin_addr, &iface->config.dhcpv4.server_id, sizeof(addr4.sin_addr));
 
 	if (err) {
         LOG_ERR("Invalid address, err: %d, %s", errno, strerror(errno));
 		goto fail;
     }
-	sequence++;
-	err = net_icmpv4_send_echo_request(net_if_get_default(), 
-							&addr4.sin_addr,
-							0, sequence,
-							0, -1, NULL, 4);
+	
+	params.identifier = 0;
+	params.sequence = sequence;
+	params.tc_tos = 0;
+	params.priority = -1;
+	params.data = NULL;
+	params.data_size = 4;
+
+	static struct k_sem sem_wait;
+	k_sem_init(&sem_wait, 0, 1);
+	
+	err = net_icmp_send_echo_request(&ctx,
+							net_if_get_default(),
+							(struct sockaddr *)&addr4,
+							&params,
+							&sem_wait);
 	
 	if (err) {
         LOG_ERR("Failed to send ping: %d, %s", errno, strerror(errno));
 		goto fail;
     }
 	LOG_INF("Ping scheduled, seq=%d", sequence);
-	k_work_schedule(&ping_timeout_work, PING_TIMEOUT);
-
+	err = k_sem_take(&sem_wait, K_MSEC(MSEC_PER_SEC));
+	k_work_schedule(&ping_response_timeout, PING_RESPONSE_TIMEOUT);
 	return;
 
 fail:
+	sequence = recv_seq;
 	k_work_reschedule(&ping_work, PING_WORK_DELAY);
+	return;
 }
 
 void ping_schedule()
@@ -147,8 +176,5 @@ void ping_init()
     shell_backend = shell_backend_uart_get_ptr();
 
     k_work_init_delayable(&ping_work, ping_work_handler);
-	k_work_init_delayable(&ping_timeout_work, ping_timeout_work_handler);
-
-	net_icmpv4_init();
-	net_icmpv4_register_handler(&ping_handler);
+	k_work_init_delayable(&ping_response_timeout, ping_response_timeout_handler);
 }
