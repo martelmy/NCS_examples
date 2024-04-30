@@ -1,9 +1,7 @@
 # Wi-Fi Provisioning Demo
 
-<i> Based on [Wi-Fi: Provisioning Service](https://github.com/nrfconnect/sdk-nrf/tree/v2.2.0/samples/wifi/provisioning) in nRF Connect SDK and [Rallare's Wi-Fi Provisioning demo](https://github.com/Rallare/fw-nrfconnect-nrf/tree/provisioning_demo_app/samples/wifi/provisioning).<br>
-SDK version: v2.2.99-dev3<br>
-Cherry-picked commit:
-https://github.com/nrfconnect/sdk-zephyr/commit/c4b528788ce7927f0f8a7da487a8f5c8bbe5643e
+<i> Based on [Wi-Fi: Provisioning Service](https://github.com/nrfconnect/sdk-nrf/tree/v2.5.2/samples/wifi/provisioning) in nRF Connect SDK and [Rallare's Wi-Fi Provisioning demo](https://github.com/Rallare/fw-nrfconnect-nrf/tree/provisioning_demo_app/samples/wifi/provisioning).<br>
+SDK version: v2.5.2<br>
 </i>
 
 # Table of Contents
@@ -83,23 +81,24 @@ Select source meter mode, set the supply voltage to 3.6 volts, and enable power 
 
 ## User interface 
 
-<b>LED 1:</b> <br>
->Turns on when the device is in power-saving mode.
+<b>LED 1:</b>
+>Turns on when TWT is enabled.
 
 <b>LED 2:</b>
->Turns on when button 2 is pressed to ping and turns off after ping is complete.
+>Turns on when button 2 is pressed to ping and turns off after receiving ping response.
 
 <b>Button 1:</b>
->Enables/disables power saving mode.
+>Enables/disables Target Wake Time mode.
 
 <b>Button 2:</b>
->Sends ping.
+>Schedules ping for next wakeup period.
 
 ## Testing
 
 1. Set up PPK2 and Power Profiler as explained in [Current measurement](#current-measurement) and start current measurement.
 2. Turn on and provision the DK as explained in [Provisioning](#provisioning).
-3. Press button 1 to enable power saving mode. Pressing button 1 again will disable power saving.
+3. Press button 1 to enable TWT. Pressing button 1 again will disable TWT.
+4. Press button 2 to send a ping.
 
 ## Troubleshooting
 
@@ -148,16 +147,6 @@ nrfjprog -f NRF53 --program merged_CPUAPP.hex --chiperase \
 nrfjprog --pinreset
 ```
 
-<b> Failed to allocate net_pkt </b>
-
-The following errors can be ignored; explanation of what happens below:
-```
-<err> net_pkt: net_pkt_alloc_buffer: Data buffer (0) allocation failed.
-<err> net_ctx: context_sendto: Failed to allocate net_pkt
-<err> wpa_supp: wpa_printf_impl: l2_packet_send - sendto: No buffer space available
-```
-This error comes from the wpa_supplicant. If `CONFIG_WNM` is defined and regular data traffic has not been sent recently, it will try to send a keep-alive to the access point. This is done by calling `l2_packet_send()` to send a packet with a length of 0. This causes issues with allocating net_pkt buffer due to `alloc_len` being equal to zero.
-
 
 <b>nRF7002 DK does not start up correctly/show up in Wi-Fi Provisioner app after starting up</b>
 Turn the nRF7002 DK off and wait a few seconds before turning it on again.
@@ -166,19 +155,12 @@ Turn the nRF7002 DK off and wait a few seconds before turning it on again.
 
 Sometimes programming and booting the device with PPK2 connected might fail. In those cases, disconnect the PPK2 before programming/booting the device, and reconnect it after the device has started up.
 
-## Comments regarding power-saving mode
-Legacy power saving mode can be enabled by setting `CONFIG_WIFI_TWT_ENABLED=n` in prj.conf. With legacy power saving, the average current consumption will be higher than with Target Wake Time (TWT). The limiting factor is the time the device can be in low-power mode. As seen in the picture below, the average current consumption is around 26 mA, while during low-power mode, the current consumption is about 14 µA. The current consumption can be improved by using TWT, as it allows for extended periods of low power mode, see [Target Wake Time (TWT)](#target-wake-time-twt).
-
-<img src="pictures/ps_mode.png" alt="Power saving mode" width="500"/>
-
 
 
 ## Target Wake Time (TWT)
 
-This demo also supports the Wi-Fi 6 feature Target Wake Time (TWT). To enable TWT set the `CONFIG_WIFI_TWT_ENABLED` Kconfig option. This will make the demo use TWT instead of legacy power saving. The user interface is the same as for power saving mode.
+With TWT, you can specify when and how frequently the device should wake up to send or receive data. This allows the device to be in low-power mode for much longer, thus significantly decreasing the average current consumption. In this demo, the default TWT interval, i.e., the expected average time between successive TWT wakeups, is, by default, 10 seconds. The interval can be changed by changing the value of `TWT_INTERVAL_MS` in [wifi_twt.c](src/wifi_twt.c).
 
-With TWT, you can specify when and how frequently the device should wake up to send or receive data. This allows the device to be in low-power mode for much longer, thus significantly decreasing the average current consumption. In this demo, the default TWT interval, i.e., the expected average time between successive TWT wakeups, is, by default, 15 seconds. The interval can be changed by changing the value of `params.setup.twt_interval_ms` in `wifi_set_twt()`.
-
-For more information, see our documentation on [Target Wake Time (TWT)](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.2.99-dev3/nrf/ug_nrf70_developing_powersave.html#target-wake-time-twt).
+For more information, see our documentation on [Target Wake Time (TWT)](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.2/nrf/device_guides/working_with_nrf/nrf70/developing/powersave.html#target-wake-time-twt).
 
 <i>NB: Ensure that your Wi-Fi 6 access point supports TWT and that TWT is enabled in the access point's settings.</i>
