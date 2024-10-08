@@ -1,7 +1,7 @@
 # Wi-Fi Provisioning Demo
 
 <i> Based on [Wi-Fi: Provisioning Service](https://github.com/nrfconnect/sdk-nrf/tree/v2.5.2/samples/wifi/provisioning) in nRF Connect SDK and [Rallare's Wi-Fi Provisioning demo](https://github.com/Rallare/fw-nrfconnect-nrf/tree/provisioning_demo_app/samples/wifi/provisioning).<br>
-SDK version: v2.5.2<br>
+SDK version: v2.6.0<br>
 </i>
 
 # Table of Contents
