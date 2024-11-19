@@ -1,4 +1,4 @@
-# Wi-Fi Provisioning Demo
+# Wi-Fi TWT Provisioning Demo
 
 <i> Based on [Wi-Fi: Bluetooth LE based provision](https://docs.nordicsemi.com/bundle/ncs-2.7.0/page/nrf/samples/wifi/provisioning/ble/README.html) in nRF Connect SDK and [Rallare's Wi-Fi Provisioning demo](https://github.com/Rallare/fw-nrfconnect-nrf/tree/provisioning_demo_app/samples/wifi/provisioning).<br>
 Tested SDK versions: v2.6.0, v2.7.0<br>
