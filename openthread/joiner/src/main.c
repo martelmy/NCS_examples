@@ -63,6 +63,7 @@ static void ot_joiner_start_handler(otError error, void *context)
 void ot_start_joiner()
 {
 	LOG_INF("Starting joiner");
+
 	otInstance *instance = openthread_get_default_instance();
 	struct openthread_context *context = openthread_get_default_context();
 
@@ -73,6 +74,7 @@ void ot_start_joiner()
 				"Zephyr", "Zephyr",
 				KERNEL_VERSION_STRING, NULL,
 				&ot_joiner_start_handler, NULL);
+
 	openthread_api_mutex_unlock(context);
 }
 
@@ -84,9 +86,17 @@ void ot_joiner_init()
 
 	ot_start_joiner();
 	err = k_sem_take(&connected_sem, WAIT_TIME_FOR_OT_CON);
+	struct openthread_context *context = openthread_get_default_context();
 
 	LOG_INF("Starting OpenThread");
-	openthread_start(openthread_get_default_context());
+	openthread_api_mutex_lock(context);
+
+	err = otThreadSetEnabled(openthread_get_default_instance(), true);
+	if (err != OT_ERROR_NONE) {
+		LOG_ERR("Starting openthread: %d (%s)", err, otThreadErrorToString(err));
+	}
+
+	openthread_api_mutex_unlock(context);
 }
 
 int main(void)

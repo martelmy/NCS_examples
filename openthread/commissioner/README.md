@@ -1,4 +1,4 @@
-<i>Latest nRF Connect version tested with: v2.6.2</i>
+<i>Latest nRF Connect version tested with: v2.9.0</i>
 
 # OpenThread Commissioner
 
